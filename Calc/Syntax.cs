@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Calc.Domain
+namespace Calc
 {
      static class Syntax
     {

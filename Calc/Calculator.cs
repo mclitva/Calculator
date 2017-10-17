@@ -1,10 +1,9 @@
-﻿using Calc.Domain;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace Calc.Managers
+namespace Calc
 {
     class Calculator
     {
@@ -55,6 +54,12 @@ namespace Calc.Managers
                 int priority = 0;
                 while(priority < Syntax.Priorities.Count())
                 {
+                    if (!elements.Any(str => GetPriority(str.First()) == priority))
+                    {
+                        priority++;
+                        continue;
+                    }
+                    
                     for(int i = 0; i < elements.Count; i++)
                     {                        
                         if (elements[i].Count() == 1 && Syntax.IsOperator(elements[i].First()))
@@ -68,7 +73,7 @@ namespace Calc.Managers
                                 }
                                 catch(DivideByZeroException e)
                                 {
-                                    Console.WriteLine("Обнаружено деление на ноль");
+                                    Console.WriteLine("Обнаружено деление на ноль, а тут вам не JS.");
                                 }
                                 
                                 elements.Remove(elements[i - 1]);
@@ -93,11 +98,16 @@ namespace Calc.Managers
 
         private string GetOperationResult(char oper, string leftOperand, string rightOperand)
         {
+            leftOperand = leftOperand.Replace(',', '.');
+            rightOperand = rightOperand.Replace(',', '.');
             float left = float.Parse(leftOperand, CultureInfo.InvariantCulture);
             float right = float.Parse(rightOperand, CultureInfo.InvariantCulture);
             float res;
             switch (oper)
             {
+                case '^':
+                    res = (float)Math.Pow(left, right);
+                    break;
                 case '*':
                     res = left * right;
                     break;

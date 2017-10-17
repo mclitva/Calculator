@@ -1,5 +1,4 @@
 ﻿using System;
-using Calc.Managers;
 
 namespace Calc
 {
@@ -12,10 +11,19 @@ namespace Calc
                 Console.Write("Введите выражение: ");
                 string expr = Console.ReadLine();
                 expr = expr.Replace(',', '.');
-                Calculator calculator = new Calculator(expr);
-                Console.Write($"{expr} = {calculator.Run()}\nДля выхода нажмите Q, что бы продолжить, нажмите Enter:\n");
+                Validator validator = new Validator(expr);
+                if (validator.IsValid())
+                {
+                    Calculator calculator = new Calculator(expr);
+                    Console.Write($"{expr} = {calculator.Run()}\nДля выхода нажмите Q, что бы продолжить, нажмите Enter:\n");
+                    
+                }
+                else
+                {
+                    Console.WriteLine("Не валидное выражение");
+                }
                 var key = Console.ReadKey();
-                if(key.KeyChar == 'q' || key.KeyChar == 'й')
+                if (key.KeyChar == 'q' || key.KeyChar == 'й')
                     break;
             }
         }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Calc.Domain
+namespace Calc
 {
     class Validator
     {
