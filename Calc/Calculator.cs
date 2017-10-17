@@ -16,8 +16,8 @@ namespace Calc
         public string Run()
         {
             List<string> elements = GetElements();
-            var res = Calculate(elements)?.First();
-            return res;
+            var res = Calculate(elements);
+            return res.Count() > 1 ? "WARNING" : res?.First();
         }
 
         private List<string> GetElements()
@@ -74,6 +74,7 @@ namespace Calc
                                 catch(DivideByZeroException e)
                                 {
                                     Console.WriteLine("Обнаружено деление на ноль, а тут вам не JS.");
+                                    break;
                                 }
                                 
                                 elements.Remove(elements[i - 1]);

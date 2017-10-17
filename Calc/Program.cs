@@ -20,7 +20,7 @@ namespace Calc
                 }
                 else
                 {
-                    Console.WriteLine("Не валидное выражение");
+                    Console.Write("Не валидное выражение\nДля выхода нажмите Q, что бы продолжить, нажмите Enter:\n");
                 }
                 var key = Console.ReadKey();
                 if (key.KeyChar == 'q' || key.KeyChar == 'й')

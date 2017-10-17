@@ -39,11 +39,10 @@ namespace Calc
         }
         private bool SyntaxCheck()
         {            
-            bool isValid = false;
-            char ch = Expression[Expression.Length - 1];                       
+            bool isValid = false;                      
             for(int i = 0; i < Expression.Length; i++)
             {              
-                ch = Expression[i];
+                var ch = Expression[i];
                 isValid = Syntax.IsBrace(ch) || Syntax.IsOperator(ch) || Syntax.IsSeparator(ch) || Char.IsNumber(ch);
                 if (!isValid) return false;
             }            
