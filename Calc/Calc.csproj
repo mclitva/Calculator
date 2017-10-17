@@ -42,10 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Managers\Calculator.cs" />
+    <Compile Include="Calculator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Syntax\Syntax.cs" />
+    <Compile Include="Domain\Element.cs" />
+    <Compile Include="Domain\Syntax.cs" />
+    <Compile Include="Domain\Validator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
