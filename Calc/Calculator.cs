@@ -1,6 +1,7 @@
 ﻿using Calc.Domain;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace Calc.Managers
@@ -92,8 +93,8 @@ namespace Calc.Managers
 
         private string GetOperationResult(char oper, string leftOperand, string rightOperand)
         {
-            float.TryParse(leftOperand, out float left);
-            float.TryParse(rightOperand, out float right);
+            float left = float.Parse(leftOperand, CultureInfo.InvariantCulture);
+            float right = float.Parse(rightOperand, CultureInfo.InvariantCulture);
             float res;
             switch (oper)
             {
