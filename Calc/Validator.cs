@@ -10,8 +10,8 @@ namespace Calc
             Expression = expression;
         }
         public bool IsValid()
-        {            
-            return BracesCheck() && SyntaxCheck();            
+        {
+            return BracesCheck() && SyntaxCheck();
         }
 
         private bool BracesCheck()
@@ -38,39 +38,39 @@ namespace Calc
             return isValid;
         }
         private bool SyntaxCheck()
-        {            
-            bool isValid = false;                      
-            for(int i = 0; i < Expression.Length; i++)
-            {              
+        {
+            bool isValid = false;
+            for (int i = 0; i < Expression.Length; i++)
+            {
                 var ch = Expression[i];
                 isValid = Syntax.IsBrace(ch) || Syntax.IsOperator(ch) || Syntax.IsSeparator(ch) || Char.IsNumber(ch);
                 if (!isValid) return false;
-            }            
-            
+            }
+
             return isValid;
-        }         
-    }
-        class Stack
-        {
-            public char[] StackArray { get; set; }
-            private int index;            
-            public Stack(int expressionLength)
-            {
-                StackArray = new char[expressionLength];
-                index = -1;
-            }
-            public void Push(char ch)
-            {
-                StackArray[++index] = ch;
-            }
-            public char Pop()
-            {
-                if (index != -1)
-                {
-                    return StackArray[index--];
-                }
-                else return '0';
-            }
         }
+    }
+    class Stack
+    {
+        public char[] StackArray { get; set; }
+        private int index;
+        public Stack(int expressionLength)
+        {
+            StackArray = new char[expressionLength];
+            index = -1;
+        }
+        public void Push(char ch)
+        {
+            StackArray[++index] = ch;
+        }
+        public char Pop()
+        {
+            if (index != -1)
+            {
+                return StackArray[index--];
+            }
+            else return '0';
+        }
+    }
 
 }

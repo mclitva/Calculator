@@ -2,7 +2,7 @@
 
 namespace Calc
 {
-     static class Syntax
+    static class Syntax
     {
         public static readonly List<char> Operators = new List<char>
         {
@@ -28,5 +28,5 @@ namespace Calc
             return Separators.Contains(ch);
         }
     }
-    
+
 }

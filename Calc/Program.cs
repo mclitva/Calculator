@@ -16,7 +16,7 @@ namespace Calc
                 {
                     Calculator calculator = new Calculator(expr);
                     Console.Write($"{expr} = {calculator.Run()}\nДля выхода нажмите Q, что бы продолжить, нажмите Enter:\n");
-                    
+
                 }
                 else
                 {
