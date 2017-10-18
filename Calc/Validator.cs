@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Calc
 {
@@ -30,7 +31,7 @@ namespace Calc
                         }
                     case ')':
                         {
-                            isValid = stack.Pop() == '(' ? true : false;
+                            isValid = stack.Pop() == '(';
                             break;
                         }
                 }
@@ -67,9 +68,14 @@ namespace Calc
         {
             if (index != -1)
             {
-                return StackArray[index--];
+                return StackArray[index--];                
             }
-            else return '0';
+            return '0';
+        }
+
+        public int GetCount(char ch)
+        {
+            return StackArray.Count(el => el == ch);
         }
     }
 
