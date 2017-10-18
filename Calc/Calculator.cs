@@ -17,7 +17,15 @@ namespace Calc
         {
             List<string> elements = GetElements();
             var res = Calculate(elements);
-            return res.Count() > 1 ? "WARNING" : res?.First();
+            try
+            {
+                return res.Count() > 1 ? "WARNING" : res?.First();
+            }catch(Exception e)
+            {
+                Console.WriteLine($"{e.Message}");
+                return "Exception";
+            }
+
         }
 
         private List<string> GetElements()
@@ -54,7 +62,7 @@ namespace Calc
                 int priority = 0;
                 while(priority < Syntax.Priorities.Count())
                 {
-                    if (!elements.Any(str => GetPriority(str.First()) == priority))
+                    if (elements.All(str => GetPriority(str.First()) != priority))
                     {
                         priority++;
                         continue;
@@ -73,7 +81,7 @@ namespace Calc
                                 }
                                 catch(DivideByZeroException e)
                                 {
-                                    Console.WriteLine("Обнаружено деление на ноль, а тут вам не JS.");
+                                    Console.WriteLine($"Тут вам не JS: {e.Message}");
                                     break;
                                 }
                                 
@@ -124,16 +132,16 @@ namespace Calc
                     res = left + right;
                     break;
             }
-            return res.ToString();
+            return res.ToString(CultureInfo.InvariantCulture);
         }
 
         private int GetPriority(char ch)
-        {            
-            if (Syntax.Priorities[0].Contains(ch))
-                return 0;
-            if (Syntax.Priorities[1].Contains(ch))
-                return 1;
-            else return 2;
+        {
+            for (int i = 0; i < Syntax.Priorities.Length; i++)
+            {
+                if (Syntax.Priorities[i].Contains(ch)) return i;
+            }
+            return 1000;
         }
 
     }
