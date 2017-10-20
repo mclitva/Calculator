@@ -4,7 +4,7 @@ namespace Calc
 {
     static class Syntax
     {
-        public static readonly List<char> Operators = new List<char>
+        private static readonly List<char> Operators = new List<char>
         {
             '^',
             '*',
@@ -12,9 +12,12 @@ namespace Calc
             '+',
             '-'
         };
-        public static readonly List<char> Braces = new List<char> { '(', ')' };
-        public static readonly List<char> Separators = new List<char> { ',', '.' };
-        public static string[] Priorities = { "^", "*/", "+-" };
+        private static readonly List<char> Braces = new List<char> { '(', ')' };
+        private static readonly List<char> Separators = new List<char> { ',', '.' };
+        public static readonly List<string> Priorities = new List<string>{ "^", "*/", "+-" };
+
+        public static int SignPriority() => Priorities.IndexOf("+-");
+
         public static bool IsOperator(char ch)
         {
             return Operators.Contains(ch);
