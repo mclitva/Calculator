@@ -24,7 +24,6 @@ namespace Calc
                 Console.WriteLine($"{e.Message}");
                 return "Exception";
             }
-
         }
 
         private List<string> GetElements(string expr)
@@ -73,9 +72,9 @@ namespace Calc
                                 {
                                     List<string> newElements = new List<string>();
                                     var element = GetOperationResult(ch, elements[i - 1], elements[i + 1]);
-                                    newElements.AddRange(elements.GetRange(0,i-1));
+                                    newElements.AddRange(elements.GetRange(0,i - 1));
                                     newElements.Add(element);
-                                    newElements.AddRange(elements.GetRange(newElements.Count+2,elements.Count - newElements.Count - 2));
+                                    newElements.AddRange(elements.GetRange(newElements.Count + 2, elements.Count - newElements.Count - 2));
                                     elements = newElements;
                                     i--;
                                 }
@@ -84,15 +83,12 @@ namespace Calc
                                     Console.WriteLine($"An error occured, the reason is: {e.Message}");
                                     return string.Empty;
                                 }
-                               
                             }
                         }
                     }
-
                     priority++;
                 }
                 return elements.Count > 1 ? Calculate(elements): elements.First();
-
             }
             catch (Exception ex)
             {

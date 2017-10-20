@@ -23,7 +23,6 @@ namespace Calc
                 isValid = Syntax.IsOperator(ch) || Syntax.IsSeparator(ch) || Char.IsNumber(ch[0]);
                 if (!isValid) return false;
             }
-
             return isValid;
         }
     }
