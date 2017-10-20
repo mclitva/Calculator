@@ -128,7 +128,7 @@ namespace Calc
                     res = left + right;
                     break;
             }
-            return res.ToString(CultureInfo.InvariantCulture);
+            return res.ToString();
         }
 
         private int GetPriority(string ch)
