@@ -21,7 +21,6 @@
                 {
                     System.Console.WriteLine("Invalid expression");
                     System.Console.WriteLine("To continue press Enter. For exit press Q");
-                    
                 }
                 var key = System.Console.ReadKey();
                 if (key.KeyChar == 'q' || key.KeyChar == 'й')

@@ -12,71 +12,19 @@ namespace Calc
         }
         public bool IsValid()
         {
-            return BracesCheck() && SyntaxCheck();
-        }
-
-        private bool BracesCheck()
-        {
-            bool isValid = true;
-            Stack stack = new Stack(Expression.Length);
-            for (int i = 0; i < Expression.Length; i++)
-            {
-                char ch = Expression[i];
-                switch (ch)
-                {
-                    case '(':
-                        {
-                            stack.Push(ch);
-                            break;
-                        }
-                    case ')':
-                        {
-                            isValid = stack.Pop() == '(';
-                            break;
-                        }
-                }
-            }
-            return isValid;
+            return SyntaxCheck();
         }
         private bool SyntaxCheck()
         {
             bool isValid = false;
             for (int i = 0; i < Expression.Length; i++)
             {
-                var ch = Expression[i];
-                isValid = Syntax.IsBrace(ch) || Syntax.IsOperator(ch) || Syntax.IsSeparator(ch) || Char.IsNumber(ch);
+                var ch = Expression[i].ToString();
+                isValid = Syntax.IsOperator(ch) || Syntax.IsSeparator(ch) || Char.IsNumber(ch[0]);
                 if (!isValid) return false;
             }
 
             return isValid;
         }
     }
-    class Stack
-    {
-        public char[] StackArray { get; set; }
-        private int index;
-        public Stack(int expressionLength)
-        {
-            StackArray = new char[expressionLength];
-            index = -1;
-        }
-        public void Push(char ch)
-        {
-            StackArray[++index] = ch;
-        }
-        public char Pop()
-        {
-            if (index != -1)
-            {
-                return StackArray[index--];                
-            }
-            return '0';
-        }
-
-        public int GetCount(char ch)
-        {
-            return StackArray.Count(el => el == ch);
-        }
-    }
-
 }

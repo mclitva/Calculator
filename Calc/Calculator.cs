@@ -33,20 +33,20 @@ namespace Calc
             string element = string.Empty;
             for(int i = 0; i < expr.Length; i++)
             {
-                char ch = expr[i];
+                string ch = expr[i].ToString();
                 if (!Syntax.IsOperator(ch))
                 {
                     element += ch;                    
                 }
                 else
                 {
-                    if (i == 0 || (Syntax.IsOperator(expr[i - 1]) && GetPriority(ch) == Syntax.SignPriority()))
+                    if (i == 0 || (Syntax.IsOperator(expr[i - 1].ToString()) && GetPriority(ch) == Syntax.SignPriority()))
                     {
                         element += ch;
                         continue;
                     }
                     res.Add(element);
-                    res.Add(ch.ToString());
+                    res.Add(ch);
                     element = string.Empty;
                 }
             }
@@ -64,9 +64,9 @@ namespace Calc
                 {
                     for(int i = 0; i < elements.Count; i++)
                     {
-                        if (elements[i].Count() == 1 && Syntax.IsOperator(elements[i].First())) 
+                        if (Syntax.IsOperator(elements[i])) 
                         {
-                            char ch = elements[i].First();
+                            string ch = elements[i];
                             if (GetPriority(ch) == priority)
                             {
                                 try
@@ -103,25 +103,25 @@ namespace Calc
 
         }
         
-        private string GetOperationResult(char oper, string leftOperand, string rightOperand)
+        private string GetOperationResult(string oper, string leftOperand, string rightOperand)
         {
             float left = float.Parse(leftOperand);
             float right = float.Parse(rightOperand);
             float res;
             switch (oper)
             {
-                case '^':
+                case "^":
                     res = (float)Math.Pow(left, right);
                     break;
-                case '*':
+                case "*":
                     res = left * right;
                     break;
-                case '/':
+                case "/":
                     if (right == 0.0)
                         throw new DivideByZeroException();
                     res = left / right;
                     break;
-                case '-':                
+                case "-":                
                     res = left - right;
                     break;
                 default:                 
@@ -131,16 +131,14 @@ namespace Calc
             return res.ToString(CultureInfo.InvariantCulture);
         }
 
-        private int GetPriority(char ch)
+        private int GetPriority(string ch)
         {
             for (int i = 0; i < Syntax.Priorities.Count; i++)
             {
                 if (Syntax.Priorities[i].Contains(ch)) return i;
             }
-            return 1000;
+            return int.MaxValue;
         }
 
     }
-
-  
 }
