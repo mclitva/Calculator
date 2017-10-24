@@ -22,8 +22,16 @@ namespace Calc
             for (int i = 0; i < Expression.Length; i++)
             {
                 var ch = Expression[i].ToString();
-                isValid = Syntax.IsOperator(ch) || ch[0] == '.' || Char.IsNumber(ch[0]);
-                if (!isValid) return false;
+                try
+                {
+                    isValid = Syntax.IsOperator(ch) || ch[0] == '.' || Char.IsNumber(ch[0]);
+                    if(!isValid) throw new Exception($"Unexcepted symbol: {ch}");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    return isValid;
+                }
             }
             return isValid;
         }
