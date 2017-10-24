@@ -72,8 +72,5 @@ namespace Calc
             }
             return res;
         }
-
     }
-
-   
 }

@@ -37,12 +37,12 @@ namespace Calc
                 var res = a / b;
                 if (double.IsPositiveInfinity(res)) throw new DivideByZeroException();
                 return res;
-            }catch(DivideByZeroException e)
+            }
+            catch (DivideByZeroException e)
             {
                 Console.WriteLine($"{e.Message}");
                 return 0;
             }
-            
         } 
     }
 
@@ -51,7 +51,6 @@ namespace Calc
         private readonly TextReader _reader;
         private char _currentChar;
         private Token _currentToken;
-
         public Tokenizer(TextReader reader)
         {
             _reader = reader;
@@ -59,15 +58,12 @@ namespace Calc
             NextChar();
             NextToken();
         }
-
         public Token Token => _currentToken;
-
         public void NextChar()
         {
             int ch = _reader.Read();
             _currentChar = ch < 0 ? '\0' : (char)ch;
         }
-
         public void NextToken()
         {
             while (char.IsWhiteSpace(_currentChar))
@@ -96,16 +92,13 @@ namespace Calc
                 NextChar();
             }
             _currentToken = new Token(TokenType.Number, stringBuild.ToString());
-            
         }
-
     }
 
     public class Token
     {
         private TokenType type;
         private string value;
-
         public Token(TokenType type, string value)
         {
             this.type = type;
@@ -114,6 +107,7 @@ namespace Calc
         public TokenType Type => type;
         public string Value => value;
     }
+
     public enum TokenType
     {
         Root,
@@ -121,6 +115,4 @@ namespace Calc
         Operator,
         Eof
     }
-
-
 }
