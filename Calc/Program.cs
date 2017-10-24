@@ -14,7 +14,7 @@
                 if (validator.IsValid())
                 {
                     Calculator calculator = new Calculator(expr);
-                    System.Console.WriteLine($"{expr} = {calculator.Run()}");
+                    System.Console.WriteLine($"{expr} = {calculator.Calculate()}");
                     System.Console.WriteLine("To continue press Enter. For exit press Q");
                 }
                 else
