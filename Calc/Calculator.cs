@@ -24,17 +24,18 @@ namespace Calc
                     elements.Add(t.Token);
                     t.NextToken();
                 }
-                if (elements.Count == 1) return elements[0].Value;
-                var maxPriority = GetMaxPriority(elements.Where(tok => tok.Type == TokenType.Operator).ToList());
-                var res = CalculateWithPriority(maxPriority, elements);
-                return res.Value;
+                if (elements.Count == 1)
+                    return elements[0].Number.ToString();
+               var maxPriority = GetMaxPriority(elements.Where(tok => tok.Type == TokenType.Operator).ToList());
+               var res = CalculateWithPriority(maxPriority, elements);
+               return res.Number.ToString();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occured while calculate: ({_expression})");
-                Console.WriteLine($"Error :{ex.Message}");
+                Console.WriteLine($"An error occured while calculate: '{_expression}'");
+                Console.WriteLine($"Error : {ex.Message}");
+                return "Exception";
             }
-            return string.Empty;
         }
 
         private Token CalculateWithPriority(int priority, List<Token> tokens)
@@ -43,12 +44,12 @@ namespace Calc
             var newElements = new List<Token>();
             for (int i = 0; i < tokens.Count; i++)
             {
-                if (!(tokens[i].Type == TokenType.Operator && Syntax.Priorities[tokens[i].Value] == priority))
+                if (!(tokens[i].Type == TokenType.Operator && Syntax.Operators[tokens[i].Value] == priority))
                 {
                    newElements.Add(tokens[i]);
                    continue;
                 }
-                newElements[newElements.Count - 1] = GetValue(tokens[i].Value,tokens[i-1].Value,tokens[i+1].Value);
+                newElements[newElements.Count - 1] = GetValue(tokens[i].Value, newElements[newElements.Count - 1].Number, tokens[i + 1].Number);
                 i++;
             }
             tokens = newElements;
@@ -56,19 +57,37 @@ namespace Calc
             return res;
         }
         
-        private Token GetValue(string op, string left, string right)
+        private Token GetValue(string op, double left, double right)
         {
-            var operation = Syntax.Operations[op];
-            var value = operation(double.Parse(left), double.Parse(right));
-            return new Token(TokenType.Number,value.ToString());
+            double res;
+            switch (op)
+            {
+                case "+":
+                    res = left + right;
+                    break;
+                case "-":
+                    res = left - right;
+                    break;
+                case "*":
+                    res = left * right;
+                    break;
+                default:
+                    if (right == 0)
+                    {
+                        throw new DivideByZeroException();
+                    }
+                    res = left / right;
+                    break;
+            }
+            return new Token(TokenType.Number,res);
         }
 
         private int GetMaxPriority(List<Token> operators)
         {
-            int res = Syntax.Priorities[operators[0].Value];
-            for (int i = 1; i < operators.Count(); i++)
+            int res = Syntax.Operators[operators[0].Value];
+            for (int i = 1; i < operators.Count; i++)
             {
-                if (Syntax.Priorities[operators[i].Value] < res) res = Syntax.Priorities[operators[i].Value];
+                if (Syntax.Operators[operators[i].Value] < res) res = Syntax.Operators[operators[i].Value];
             }
             return res;
         }
