@@ -18,6 +18,7 @@ namespace CalcTests
         };
         private List<string> ExceptionCases = new List<string>
         {
+            "2,0",
             "1/0",
             "*",
             "1-",

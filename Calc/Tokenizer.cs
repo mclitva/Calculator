@@ -82,7 +82,7 @@ namespace Calc
         public object Value => value;
         public string ToString()
         {
-            return type.ToString();
+            return value.ToString();
         }
         public Token Clone()
         {
