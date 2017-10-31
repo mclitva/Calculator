@@ -11,12 +11,11 @@ namespace Calc
             {
                 Console.Write("Write your expression: ");
                 string expr = Console.ReadLine();
-                expr = expr.Replace(',', '.');
                 Calculator calculator = new Calculator(expr);
                 Console.WriteLine($"{expr} = {calculator.Calculate()}");
-                Console.WriteLine("To continue press Enter. For exit press Q");
+                Console.WriteLine("To continue press Enter. For exit press Escape");
                 var key = Console.ReadKey();
-                if (key.KeyChar == 'q' || key.KeyChar == 'й')
+                if (key.Key == ConsoleKey.Escape)
                     break;
             }
         }

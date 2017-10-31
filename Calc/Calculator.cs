@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 
 namespace Calc
 {
-    class Calculator
+    public class Calculator
     {
         private readonly string _expression;
         public Calculator(string expression)
         {
-            _expression = expression;
+            _expression = expression.Replace(" ", "");
         }
         public string Calculate()
         {
@@ -25,10 +23,12 @@ namespace Calc
                     t.NextToken();
                 }
                 if (elements.Count == 1)
-                    return elements[0].Number.ToString();
-               var maxPriority = GetMaxPriority(elements.Where(tok => tok.Type == TokenType.Operator).ToList());
-               var res = CalculateWithPriority(maxPriority, elements);
-               return res.Number.ToString();
+                    return elements[0].Value.ToString();
+                foreach(var op in Syntax.Operators)
+                {
+                    CalculateWithPriority(op.Value, ref elements);
+                }
+                return elements[0].Value.ToString();
             }
             catch (Exception ex)
             {
@@ -38,30 +38,32 @@ namespace Calc
             }
         }
 
-        private Token CalculateWithPriority(int priority, List<Token> tokens)
+        private void CalculateWithPriority(int priority, ref List<Token> tokens)
         {
-            if (tokens.Count == 1) return tokens[0];
-            var newElements = new List<Token>();
             for (int i = 0; i < tokens.Count; i++)
             {
-                if (!(tokens[i].Type == TokenType.Operator && Syntax.Operators[tokens[i].Value] == priority))
+                if (tokens[i].Type == TokenType.Operator &&
+                    Syntax.Operators[(string) tokens[i].Value] == priority)
                 {
-                   newElements.Add(tokens[i]);
-                   continue;
+                    tokens[i - 1] =
+                        GetValue((string)tokens[i].Value,
+                            Convert.ToInt32(tokens[i - 1].Value),
+                            Convert.ToInt32(tokens[i + 1].Value));
+                    tokens.RemoveAt(i);
+                    tokens.RemoveAt(i);
+                    i--;
                 }
-                newElements[newElements.Count - 1] = GetValue(tokens[i].Value, newElements[newElements.Count - 1].Number, tokens[i + 1].Number);
-                i++;
             }
-            tokens = newElements;
-            var res = CalculateWithPriority(++priority, tokens);
-            return res;
         }
         
-        private Token GetValue(string op, double left, double right)
+        private Token GetValue(string op, int left, int right)
         {
             double res;
             switch (op)
             {
+                case "**":
+                    res = Math.Pow(left, right);
+                    break;
                 case "+":
                     res = left + right;
                     break;
@@ -72,24 +74,10 @@ namespace Calc
                     res = left * right;
                     break;
                 default:
-                    if (right == 0)
-                    {
-                        throw new DivideByZeroException();
-                    }
                     res = left / right;
                     break;
             }
             return new Token(TokenType.Number,res);
-        }
-
-        private int GetMaxPriority(List<Token> operators)
-        {
-            int res = Syntax.Operators[operators[0].Value];
-            for (int i = 1; i < operators.Count; i++)
-            {
-                if (Syntax.Operators[operators[i].Value] < res) res = Syntax.Operators[operators[i].Value];
-            }
-            return res;
         }
     }
 }
