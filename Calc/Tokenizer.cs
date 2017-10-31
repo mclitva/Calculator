@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Calc
@@ -59,7 +60,7 @@ namespace Calc
             }
             try
             {
-                _currentToken = new Token(TokenType.Number, int.Parse(stringBuild.ToString()));
+                _currentToken = new Token(TokenType.Number, Int32.Parse(stringBuild.ToString()));
             }
             catch (Exception e)
             {
@@ -100,6 +101,7 @@ namespace Calc
             {"+", 2},
             {"-", 2}
         };
+        public static int GetMinPriority() => Operators.Values.Max();
         public static bool IsOperator(string ch) => Operators.ContainsKey(ch);
         public static List<char> Separators = new List<char> { ',', '.' };
     }

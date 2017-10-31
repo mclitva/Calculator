@@ -22,11 +22,10 @@ namespace Calc
                     elements.Add(t.Token);
                     t.NextToken();
                 }
-                if (elements.Count == 1)
-                    return elements[0].Value.ToString();
-                foreach(var op in Syntax.Operators)
+                CalculatePowers(ref elements);
+                for(int pr = 1; pr <= Syntax.GetMinPriority(); pr++)
                 {
-                    CalculateWithPriority(op.Value, ref elements);
+                    CalculateWithPriority(pr, ref elements);
                 }
                 return elements[0].Value.ToString();
             }
@@ -45,24 +44,39 @@ namespace Calc
                 if (tokens[i].Type == TokenType.Operator &&
                     Syntax.Operators[(string) tokens[i].Value] == priority)
                 {
-                    tokens[i - 1] =
-                        GetValue((string)tokens[i].Value,
-                            Convert.ToInt32(tokens[i - 1].Value),
-                            Convert.ToInt32(tokens[i + 1].Value));
-                    tokens.RemoveAt(i);
-                    tokens.RemoveAt(i);
-                    i--;
+                    GetConvolution(ref tokens, ref i);
                 }
             }
+        }
+        private void CalculatePowers(ref List<Token> tokens)
+        {
+            for (int i = tokens.Count - 1; i >= 0 ; i--)
+            {
+                if (tokens[i].Type == TokenType.Operator && (string)tokens[i].Value == "**")
+                {
+                    GetConvolution(ref tokens, ref i);
+                }
+            }
+        }
+
+        private void GetConvolution(ref List<Token> tokens, ref int iterator)
+        {
+            tokens[iterator - 1] =
+                GetValue((string)tokens[iterator].Value,
+                    (int)tokens[iterator - 1].Value,
+                    (int)tokens[iterator + 1].Value);
+            tokens.RemoveAt(iterator);
+            tokens.RemoveAt(iterator);
+            iterator--;
         }
         
         private Token GetValue(string op, int left, int right)
         {
-            double res;
+            int res;
             switch (op)
             {
                 case "**":
-                    res = Math.Pow(left, right);
+                    res = (int)Math.Pow(left, right);
                     break;
                 case "+":
                     res = left + right;

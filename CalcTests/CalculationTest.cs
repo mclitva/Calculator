@@ -15,6 +15,7 @@ namespace CalcTests
             {"3**2", "9"},
             {"2+2*2", "6"},
             {"1   +   2   - 152", "-149"},
+            {"2**2**3", "256"}
         };
         private List<string> ExceptionCases = new List<string>
         {
