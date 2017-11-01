@@ -92,6 +92,6 @@ namespace Calc
                     break;
             }
             return new Token(TokenType.Number,res);
-        }
+        }//
     }
 }
