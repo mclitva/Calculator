@@ -23,7 +23,7 @@ namespace Calc
                     t.NextToken();
                 }
                 CalculatePowers(ref elements);
-                for(int pr = 1; pr <= Syntax.GetMaxPriority(); pr++)
+                for(int pr = 1; pr <= Syntax.GetMinPriority(); pr++)
                 {
                     CalculateWithPriority(pr, ref elements);
                 }
@@ -44,32 +44,30 @@ namespace Calc
                 if (tokens[i].Type == TokenType.Operator &&
                     Syntax.Operators[(string) tokens[i].Value] == priority)
                 {
-                    tokens[i - 1] =
-                        GetValue((string)tokens[i].Value,
-                            (int)tokens[i - 1].Value,
-                            (int)tokens[i + 1].Value);
-                    tokens.RemoveAt(i);
-                    tokens.RemoveAt(i);
-                    i--;
+                    GetConvolution(ref tokens, ref i);
                 }
             }
         }
-
         private void CalculatePowers(ref List<Token> tokens)
         {
             for (int i = tokens.Count - 1; i >= 0 ; i--)
             {
                 if (tokens[i].Type == TokenType.Operator && (string)tokens[i].Value == "**")
                 {
-                    tokens[i - 1] =
-                        GetValue((string)tokens[i].Value,
-                            (int)tokens[i - 1].Value,
-                            (int)tokens[i + 1].Value);
-                    tokens.RemoveAt(i);
-                    tokens.RemoveAt(i);
-                    i++;
+                    GetConvolution(ref tokens, ref i);
                 }
             }
+        }
+
+        private void GetConvolution(ref List<Token> tokens, ref int iterator)
+        {
+            tokens[iterator - 1] =
+                GetValue((string)tokens[iterator].Value,
+                    (int)tokens[iterator - 1].Value,
+                    (int)tokens[iterator + 1].Value);
+            tokens.RemoveAt(iterator);
+            tokens.RemoveAt(iterator);
+            iterator--;
         }
         
         private Token GetValue(string op, int left, int right)
