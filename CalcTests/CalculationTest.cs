@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Calc;
 
@@ -7,18 +9,21 @@ namespace CalcTests
     [TestClass]
     public class CalculationTest
     {
-        private Dictionary<string, string> SimpleCases = new Dictionary<string, string>
+        private Dictionary<string, int> SimpleCases = new Dictionary<string, int>
         {
-            {"1", "1"},
-            {"2+2", "4"},
-            {"2*2", "4"},
-            {"3**2", "9"},
-            {"2+2*2", "6"},
-            {"1   +   2   - 152", "-149"},
-            {"2**2**3", "256"}
+
+            {"2*(1+1)+0", 4 },
+            {"1   +   2   - 152", -149},
+            {"1", 1},
+            {"2+2", 4},
+            {"2*2", 4},
+            {"3**2", 9},
+            {"2+2*2", 6},
+            {"2**2**3", 256},
         };
         private List<string> ExceptionCases = new List<string>
         {
+            "1+((1+5)*0",
             "2,0",
             "1/0",
             "*",
@@ -34,8 +39,8 @@ namespace CalcTests
         {
             foreach (var testCase in SimpleCases)
             {
-                Calculator calc = new Calculator(testCase.Key);
-                Assert.AreEqual(calc.Calculate(), testCase.Value);
+                Tokenizer tok = new Tokenizer(testCase.Key);
+                Assert.AreEqual(tok.Parse().Value, testCase.Value);
             }
         }
 
@@ -44,8 +49,8 @@ namespace CalcTests
         {
             foreach (var testCase in ExceptionCases)
             {
-                Calculator calc = new Calculator(testCase);
-                Assert.AreEqual(calc.Calculate(), "Exception");
+                Tokenizer tok = new Tokenizer(testCase);
+                Assert.AreEqual(tok.Parse().Type, TokenType.Error);
             }
         }
     }

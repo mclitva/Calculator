@@ -2,71 +2,108 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace Calc
 {
-    class Tokenizer
+    public class Tokenizer
     {
-        private readonly TextReader _reader;
+        private List<Token> _tokens;
+        private readonly Expression _expression;
         private char _currentChar;
+        private Token _prevToken;
         private Token _currentToken;
-        public Tokenizer(TextReader reader)
+
+        public Tokenizer(string expression)
         {
-            _reader = reader;
-            _currentToken = new Token(TokenType.Operator, "");
+            _expression = new Expression(expression);
             NextChar();
-            NextToken();
+            _prevToken = new Token(TokenType.Operator, "");
         }
-        public Token Token => _currentToken;
-        public void NextChar()
+        
+        public Token Parse()
         {
-            int ch = _reader.Read();
-            _currentChar = ch < 0 ? '\0' : (char)ch;
+            try
+            {
+                NextToken();
+                _tokens = new List<Token>();
+                while (_currentToken.Type != TokenType.Eof)
+                {
+                    _tokens.Add(_currentToken);
+                    NextToken();
+                }
+                if(_tokens.Any(t => t.Type == TokenType.Brace))
+                    throw new Exception("Invalid count of braces.");
+                var calculator = new Calculator(_tokens);
+                calculator.Calculate();
+                return calculator.Result;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("An error occured while calculating.");
+                return new Token(TokenType.Error, e.Message);
+            }
         }
-        public void NextToken()
+
+        private void NextToken()
         {
+            while (char.IsWhiteSpace(_currentChar))
+                NextChar();
+            var stringBuild = new StringBuilder();
             if (_currentChar == '\0')
             {
                 _currentToken = new Token(TokenType.Eof, _currentChar.ToString());
                 return;
             }
-            if(Syntax.IsOperator(_currentChar.ToString()))
+            if (_currentChar == ')')
             {
-                var temp = _currentChar;
+                int prevBraceIndex = _tokens.FindLastIndex(t => t.Type == TokenType.Brace);
+                var child = _tokens.GetRange(prevBraceIndex+1, _tokens.Count - prevBraceIndex - 1);
+                _tokens.RemoveRange(prevBraceIndex, _tokens.Count - prevBraceIndex);
+                var tempCalc = new Calculator(child);
+                tempCalc.Calculate();
+                _currentToken = tempCalc.Result;
                 NextChar();
-                if (_currentChar == temp && temp == '*')
-                {
-                    _currentToken = new Token(TokenType.Operator, "**");
-                    NextChar();
-                    return;
-                }
-                if(_currentToken.Type == TokenType.Operator)
-                    throw new Exception
-                        ($"Invalid operator format: {(string)_currentToken.Value + temp}");
-                if(_currentToken.Type != TokenType.Number)
-                    throw new Exception
-                        ($"There is no operand here {(string)_currentToken.Value + temp}");
-                _currentToken = new Token(TokenType.Operator,temp.ToString());
                 return;
             }
-            var stringBuild = new StringBuilder();
-            stringBuild.Append(_currentChar);
-            NextChar();
+            if (_currentChar == '(')
+            {
+                _currentToken = new Token(TokenType.Brace, _currentChar.ToString());
+                NextChar();
+                return;
+            }
+
+            if (Syntax.IsOperator(_currentChar.ToString()))
+            {
+                while (Syntax.IsOperator(_currentChar.ToString()))
+                {
+                    stringBuild.Append(_currentChar);
+                    NextChar();
+                }
+                if (!Syntax.Operators.Keys.Contains(stringBuild.ToString()))
+                    throw new Exception
+                        ($"Unexcepted operator: {stringBuild}");
+                if (_currentToken.Type != TokenType.Number)
+                    throw new Exception
+                        ($"There is no operand here {(string)_currentToken.Value + stringBuild}");
+                _currentToken = new Token(TokenType.Operator, stringBuild.ToString());
+                return;
+            }
+            stringBuild = new StringBuilder();
             while (char.IsDigit(_currentChar))
             {
                 stringBuild.Append(_currentChar);
                 NextChar();
             }
-            try
-            {
-                _currentToken = new Token(TokenType.Number, Int32.Parse(stringBuild.ToString()));
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-           
+            _currentToken = new Token(TokenType.Number, Int32.Parse(stringBuild.ToString()));
+        }
+
+        private void NextChar()
+        {
+            _currentChar = _expression.CurrentIndex ==_expression.Value.Length?
+                '\0' : _expression.Value[_expression.CurrentIndex] ;
+            _expression.CurrentIndex++;
         }
     }
 
@@ -81,35 +118,58 @@ namespace Calc
         }
         public TokenType Type => type;
         public object Value => value;
-        public string ToString()
-        {
-            return value.ToString();
-        }
-        public Token Clone()
-        {
-            return new Token(type, value);
-        }
+        public override string ToString() => value.ToString();
     }
 
+    public class Expression
+    {
+        public string Value { get; set; }
+        public int CurrentIndex { get; set; }
+
+        public Expression(string value)
+        {
+            Value = value;
+            CurrentIndex = 0;
+        }
+    }
     static class Syntax
     {
-        public static readonly Dictionary<string, int> Operators = new Dictionary<string, int>
+        public static readonly Dictionary<string, OperatorParams> Operators = new Dictionary<string, OperatorParams>
         {
-            {"**", 0},
-            {"*", 1},
-            {"/", 1},
-            {"+", 2},
-            {"-", 2}
+            {"**", new OperatorParams(0, OperatorOrientation.Right)},
+            {"*",  new OperatorParams(1, OperatorOrientation.Left)},
+            {"/",  new OperatorParams(1, OperatorOrientation.Left)},
+            {"+",  new OperatorParams(2, OperatorOrientation.Left)},
+            {"-",  new OperatorParams(2, OperatorOrientation.Left)}
         };
-        public static int GetMinPriority() => Operators.Values.Max();
+        public static int GetPriority(string op) => Operators[op].Priority;
         public static bool IsOperator(string ch) => Operators.ContainsKey(ch);
         public static List<char> Separators = new List<char> { ',', '.' };
     }
 
+    class OperatorParams
+    {
+        public int Priority { get; set; }
+        public OperatorOrientation Orientation { get; set; }
+
+        public OperatorParams(int priority, OperatorOrientation orient)
+        {
+            Priority = priority;
+            Orientation = orient;
+        }
+    }
     public enum TokenType
     {
         Number,
         Operator,
-        Eof
+        Brace,
+        Eof,
+        Error
+    }
+
+    public enum OperatorOrientation
+    {
+        Left,
+        Right
     }
 }
