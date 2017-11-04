@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Calc;
 
@@ -20,18 +18,6 @@ namespace CalcTests
             {"3**2", 9},
             {"2+2*2", 6},
             {"2**2**3", 256},
-        };
-        private List<string> ExceptionCases = new List<string>
-        {
-            "1+((1+5)*0",
-            "2,0",
-            "1/0",
-            "*",
-            "1-",
-            "1+++0",
-            "1,,0",
-            "  ",
-            string.Empty
         }; 
 
         [TestMethod]
@@ -39,19 +25,9 @@ namespace CalcTests
         {
             foreach (var testCase in SimpleCases)
             {
-                Tokenizer tok = new Tokenizer(testCase.Key);
-                Assert.AreEqual(tok.Parse().Value, testCase.Value);
+                Parser parser = new Parser(testCase.Key);
+                Assert.AreEqual(testCase.Value, parser.Result);
             }
-        }
-
-        [TestMethod]
-        public void TestExceptions()
-        {
-            foreach (var testCase in ExceptionCases)
-            {
-                Tokenizer tok = new Tokenizer(testCase);
-                Assert.AreEqual(tok.Parse().Type, TokenType.Error);
-            }
-        }
+        }        
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 
 namespace Calc
 {
@@ -12,8 +11,8 @@ namespace Calc
             {
                 Console.Write("Write your expression: ");
                 string expr = Console.ReadLine();
-                Tokenizer tok = new Tokenizer(expr);
-                Console.WriteLine($"{expr} = {tok.Parse().Value}");
+                Parser tok = new Parser(expr);
+                Console.WriteLine($"{expr} = {tok.Result}");
                 Console.WriteLine("To continue press Enter. For exit press Escape");
                 var key = Console.ReadKey();
                 if (key.Key == ConsoleKey.Escape)
