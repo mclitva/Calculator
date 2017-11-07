@@ -15,12 +15,12 @@ namespace Calc
         {
             int result = 0;
             _tokenizer.NextToken();
-            if (_tokenizer.token.Value == "")
+            if (_tokenizer.Token.Value == "")
             {
                 throw new InvalidSyntaxException("Empty expression");
             }
             result = GetAddition(result);
-            if (_tokenizer.token.Value != "")
+            if (_tokenizer.Token.Value != "")
             {
                 throw new InvalidSyntaxException("Syntax error");
             }
@@ -31,7 +31,7 @@ namespace Calc
         {
             int rightArg = 0;
             result = GetMultiplication(result);
-            var op = _tokenizer.token.Value;
+            var op = _tokenizer.Token.Value;
             while (op == "+" || op == "-")
             {
                 _tokenizer.NextToken();
@@ -45,7 +45,7 @@ namespace Calc
                         result += rightArg;
                         break;
                 }
-                op = _tokenizer.token.Value;
+                op = _tokenizer.Token.Value;
             }
             return result;
         }
@@ -54,7 +54,7 @@ namespace Calc
         {
             int rightArg = 0;
             result = GetPower(result);
-            string op = _tokenizer.token.Value;
+            string op = _tokenizer.Token.Value;
             while (op == "*" || op == "/")
             {
                 _tokenizer.NextToken();
@@ -68,7 +68,7 @@ namespace Calc
                         result /= rightArg;
                         break;
                 }
-                op = _tokenizer.token.Value;
+                op = _tokenizer.Token.Value;
             }
             return result;
         }
@@ -77,7 +77,7 @@ namespace Calc
         {
             int rightArg = 0;
             result = GetInBraces(result);
-            if (_tokenizer.token.Value == "**")
+            if (_tokenizer.Token.Value == "**")
             {
                 _tokenizer.NextToken();
                 rightArg = GetPower(rightArg);
@@ -94,11 +94,11 @@ namespace Calc
 
         private int GetInBraces(int result)
         {
-            if (_tokenizer.token.Value == "(")
+            if (_tokenizer.Token.Value == "(")
             {
                 _tokenizer.NextToken();
                 result = GetAddition(result);
-                if (_tokenizer.token.Value != ")")
+                if (_tokenizer.Token.Value != ")")
                     throw new InvalidSyntaxException("Invalid count of braces");
                 _tokenizer.NextToken();
             }
@@ -109,9 +109,9 @@ namespace Calc
 
         private int GetNumber(int result)
         {
-            if(string.IsNullOrEmpty(_tokenizer.token.Value))
+            if(string.IsNullOrEmpty(_tokenizer.Token.Value))
                 throw new InvalidSyntaxException("There is no argument");
-            if (!Int32.TryParse(_tokenizer.token.Value, out result))
+            if (!Int32.TryParse(_tokenizer.Token.Value, out result))
             {
                 throw new FormatException();
             }

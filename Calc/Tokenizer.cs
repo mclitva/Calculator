@@ -9,18 +9,18 @@ namespace Calc
         private readonly string _expression;
         private int _position;
         private char CurChar => _position >= _expression.Length ? '\0' : _expression[_position];
-        public Token token;
+        public Token Token;
 
         public Tokenizer(string expr)
         {
             _position = 0;
             _expression = expr;
-            token = new Token(TokenType.Empty, string.Empty);
+            Token = new Token(TokenType.Empty, string.Empty);
         }
         public void NextToken()
         {
-            token.Type = TokenType.Empty;
-            token.Value = "";
+            Token.Type = TokenType.Empty;
+            Token.Value = "";
             if (_position == _expression.Length)
                 return;
             while (char.IsWhiteSpace(CurChar) &&
@@ -30,39 +30,47 @@ namespace Calc
                 return;
             if (CurChar == '(' || CurChar == ')')
             {
-                token.Value += CurChar;
+                Token.Value += CurChar;
                 _position++;
             }
             else if (Syntax.IsOperator(CurChar))
             {
-                if (CurChar == '*' && CurChar == _expression[_position + 1])
+                if (CurChar == '*' && GetCharAt(_position + 1) == CurChar)
                 {
-                    token.Value = "**";
+                    Token.Value = "**";
                     _position += 2;
                 }
                 else
                 {
-                    token.Value = CurChar.ToString();
+                    Token.Value = CurChar.ToString();
                     _position++;
                 }
-                token.Type = TokenType.Operator;
+                Token.Type = TokenType.Operator;
             }
             else if (char.IsDigit(CurChar))
             {
                 StringBuilder builder = new StringBuilder();
                 while (char.IsDigit(CurChar))
                 {
+                    if (_position >= _expression.Length)
+                        break;
                     builder.Append(CurChar);
                     _position++;
-                    if (_position >= _expression.Length) break;
                 }
-                token.Value = builder.ToString();
-                token.Type = TokenType.Number;
+                Token.Value = builder.ToString();
+                Token.Type = TokenType.Number;
             }
             else
             {
                 throw new InvalidSyntaxException("Unexpected symbol");
             }
+        }
+
+        private char GetCharAt(int index)
+        {
+            if (index >= _expression.Length)
+                return '\0';
+            return _expression[index];
         }
     }
 
