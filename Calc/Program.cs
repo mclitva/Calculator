@@ -11,8 +11,16 @@ namespace Calc
             {
                 Console.Write("Write your expression: ");
                 string expr = Console.ReadLine();
-                Parser tok = new Parser(expr);
-                Console.WriteLine($"{expr} = {tok.Result}");
+                Calculator calc = new Calculator(expr);
+                try
+                {
+                    int res = calc.Calculate();
+                    Console.WriteLine($"{expr} = {res}");
+                }
+                catch (InvalidSyntaxException e)
+                {
+                    Console.WriteLine($"Error: {e.Message}");
+                }
                 Console.WriteLine("To continue press Enter. For exit press Escape");
                 var key = Console.ReadKey();
                 if (key.Key == ConsoleKey.Escape)
