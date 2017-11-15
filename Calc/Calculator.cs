@@ -1,26 +1,35 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Calc
 {
     public class Calculator
     {
-        private Tokenizer _tokenizer;
+        private List<Token> _tokens;
+        private int _currentIndex;
+        private Token CurrentToken { get
+            {
+                if (_currentIndex < _tokens.Count)
+                    return _tokens[_currentIndex];
+                else
+                    return new Token(TokenType.Empty, "");
+            }}
 
         public Calculator(string expr)
         {
-            _tokenizer = new Tokenizer(expr);
+            _tokens = new Tokenizer(expr).Parse();
+            _currentIndex = 0;
         }
 
         public int Calculate()
         {
             int result = 0;
-            _tokenizer.NextToken();
-            if (_tokenizer.Token.Value == "")
+            if (CurrentToken.Value == "")
             {
                 throw new InvalidSyntaxException("Empty expression");
             }
             result = GetAddition(result);
-            if (_tokenizer.Token.Value != "")
+            if (CurrentToken.Value != "")
             {
                 throw new InvalidSyntaxException("Syntax error");
             }
@@ -31,10 +40,10 @@ namespace Calc
         {
             int rightArg = 0;
             result = GetMultiplication(result);
-            var op = _tokenizer.Token.Value;
+            var op = CurrentToken.Value;
             while (op == "+" || op == "-")
             {
-                _tokenizer.NextToken();
+                _currentIndex++;
                 rightArg = GetMultiplication(rightArg);
                 switch (op)
                 {
@@ -45,7 +54,7 @@ namespace Calc
                         result += rightArg;
                         break;
                 }
-                op = _tokenizer.Token.Value;
+                op = CurrentToken.Value;
             }
             return result;
         }
@@ -54,10 +63,10 @@ namespace Calc
         {
             int rightArg = 0;
             result = GetPower(result);
-            string op = _tokenizer.Token.Value;
+            string op = CurrentToken.Value;
             while (op == "*" || op == "/")
             {
-                _tokenizer.NextToken();
+                _currentIndex++;
                 rightArg = GetPower(rightArg);
                 switch (op)
                 {
@@ -68,7 +77,7 @@ namespace Calc
                         result /= rightArg;
                         break;
                 }
-                op = _tokenizer.Token.Value;
+                op = CurrentToken.Value;
             }
             return result;
         }
@@ -77,9 +86,9 @@ namespace Calc
         {
             int rightArg = 0;
             result = GetInBraces(result);
-            if (_tokenizer.Token.Value == "**")
+            if (CurrentToken.Value == "^^")
             {
-                _tokenizer.NextToken();
+                _currentIndex++;
                 rightArg = GetPower(rightArg);
                 var power = rightArg;
                 if (rightArg == 0)
@@ -94,13 +103,13 @@ namespace Calc
 
         private int GetInBraces(int result)
         {
-            if (_tokenizer.Token.Value == "(")
+            if (CurrentToken.Value == "(")
             {
-                _tokenizer.NextToken();
+                _currentIndex++;
                 result = GetAddition(result);
-                if (_tokenizer.Token.Value != ")")
+                if (CurrentToken.Value != ")")
                     throw new InvalidSyntaxException("Invalid count of braces");
-                _tokenizer.NextToken();
+                _currentIndex++;
             }
             else
                 result = GetNumber(result);
@@ -109,13 +118,10 @@ namespace Calc
 
         private int GetNumber(int result)
         {
-            if(string.IsNullOrEmpty(_tokenizer.Token.Value))
+            if(string.IsNullOrEmpty(CurrentToken.Value))
                 throw new InvalidSyntaxException("There is no argument");
-            if (!Int32.TryParse(_tokenizer.Token.Value, out result))
-            {
-                throw new FormatException();
-            }
-            _tokenizer.NextToken();
+            result = int.Parse(CurrentToken.Value);            
+            _currentIndex++;
             return result;
         }
 

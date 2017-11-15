@@ -1,78 +1,62 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Calc;
+using NUnit.Framework;
 
 namespace CalcTests
 {
-    [TestClass]
+    [TestFixture]
     public class CalculationTests
-    {
-        private readonly Dictionary<string, int> _simpleCases = new Dictionary<string, int>
+    {        
+        [TestCase(4,"2+2")]
+        [TestCase(4, "2*2")]
+        [TestCase(9, "3^^2")]
+        [TestCase(0, "0/1")]
+        public void TestSimpleOperation(int excepted, string expression)
         {
+            Assert.AreEqual(excepted, new Calculator(expression).Calculate());
+        }
 
-            {"2*(1+1)+0", 4 },
-            {"1   +   2   - 152", -149},
-            {"1", 1},
-            {"2+2", 4},
-            {"2*2", 4},
-            {"3**2", 9},
-            {"2+2*2", 6},
-            {"2**2**3", 256},
-        };
-
-        [TestMethod]
-        public void TestSimpleOperations()
+        [Test]
+        public void TestOperationsPriority()
         {
-            foreach (var testCase in _simpleCases)
-            {
-                Calculator calculator = new Calculator(testCase.Key);
-                Assert.AreEqual(testCase.Value, calculator.Calculate());
-            }
+            Assert.AreEqual(6, new Calculator("2+2*2").Calculate());
+        }
+
+        [Test]
+        public void TestRightOrientedOperator()
+        {
+            Assert.AreEqual(256, new Calculator("2^^2^^3").Calculate());
         }
     }
 
-    [TestClass]
-    public class ExceptionsTests
+    [TestFixture]
+    public class CalculatingExceptionsTests
     {
-        [TestMethod]
-        [ExpectedException(typeof(DivideByZeroException))]
+        [Test]
         public void DivideByZeroException()
         {
             Calculator calculator = new Calculator("2/0");
-            int res = calculator.Calculate();
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(InvalidSyntaxException))]
+        [Test]
         public void EmptyExpressionException()
-        {
+        {            
             Calculator calculator = new Calculator("");
-            int res = calculator.Calculate();
+            Assert.Throws<InvalidSyntaxException>(delegate { calculator.Calculate(); });
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(InvalidSyntaxException))]
+        [Test]
         public void MissingArgumentException()
         {
             Calculator calculator = new Calculator("1+");
-            int res = calculator.Calculate();
+            Assert.Throws<InvalidSyntaxException>(delegate { calculator.Calculate(); });
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(InvalidSyntaxException))]
+        [Test]
         public void UnexceptedPointException()
         {
-            Calculator calculator = new Calculator("1.5");
-            int res = calculator.Calculate();
+            Assert.Throws<InvalidSyntaxException>(delegate { new Calculator("1.5").Calculate(); });
         }
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidSyntaxException))]
-        public void UnexceptedSymbolException()
-        {
-            Calculator calculator = new Calculator("1%");
-            int res = calculator.Calculate();
-        }
-    }
+    }    
 }

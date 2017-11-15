@@ -6,64 +6,85 @@ namespace Calc
 {
     public class Tokenizer
     {
-        private readonly string _expression;
+        private string _expression;
         private int _position;
         private char CurChar => _position >= _expression.Length ? '\0' : _expression[_position];
-        public Token Token;
+        private static readonly List<char> Operators = new List<char> { '*', '/', '+', '-', '^' };
 
-        public Tokenizer(string expr)
+        public Tokenizer(string expression)
         {
+            _expression = expression;
             _position = 0;
-            _expression = expr;
-            Token = new Token(TokenType.Empty, string.Empty);
         }
-        public void NextToken()
+
+        public List<Token> Parse()
         {
-            Token.Type = TokenType.Empty;
-            Token.Value = "";
+            List<Token> tokens = new List<Token>();
+            Token token = new Token(TokenType.Number, "");
+            while(_position < _expression.Length)
+            {
+                token = NextToken();
+                if (token.Type == TokenType.Error)
+                    continue;
+                tokens.Add(token);
+            }
+            return tokens;
+        }
+
+        public Token NextToken()
+        {
+            string tokenValue = string.Empty;
             if (_position == _expression.Length)
-                return;
-            while (char.IsWhiteSpace(CurChar) &&
-                   _position < _expression.Length)
+                return new Token(TokenType.Empty, tokenValue);
+            while (char.IsWhiteSpace(CurChar) && _position < _expression.Length)
                 _position++;
             if (_position == _expression.Length)
-                return;
+                return new Token(TokenType.Empty, tokenValue);
             if (CurChar == '(' || CurChar == ')')
             {
-                Token.Value += CurChar;
+                tokenValue += CurChar;
                 _position++;
+                return new Token(TokenType.Brace, tokenValue);
             }
-            else if (Syntax.IsOperator(CurChar))
+            else if (IsOperator(CurChar))
             {
-                if (CurChar == '*' && GetCharAt(_position + 1) == CurChar)
-                {
-                    Token.Value = "**";
-                    _position += 2;
-                }
-                else
-                {
-                    Token.Value = CurChar.ToString();
-                    _position++;
-                }
-                Token.Type = TokenType.Operator;
+                Token op = ParseOperator();
+                return op;
             }
             else if (char.IsDigit(CurChar))
             {
-                StringBuilder builder = new StringBuilder();
-                while (char.IsDigit(CurChar))
-                {
-                    if (_position >= _expression.Length)
-                        break;
-                    builder.Append(CurChar);
-                    _position++;
-                }
-                Token.Value = builder.ToString();
-                Token.Type = TokenType.Number;
+                Token number = ParseNumber();
+                return number;
             }
             else
             {
-                throw new InvalidSyntaxException("Unexpected symbol");
+                _position++;
+                return new Token(TokenType.Error, tokenValue);
             }
+        }
+        
+        public Token ParseNumber()
+        {
+            StringBuilder builder = new StringBuilder();
+            while (char.IsDigit(CurChar))
+            {
+                if (_position >= _expression.Length)
+                    break;
+                builder.Append(CurChar);
+                _position++;
+            }
+            return new Token(TokenType.Number, builder.ToString());
+        }
+
+        public Token ParseOperator()
+        {
+            string operatorValue = string.Empty;
+            while (IsOperator(CurChar))
+            {
+                operatorValue += CurChar;
+                _position++;
+            }
+            return new Token(TokenType.Operator, operatorValue);
         }
 
         private char GetCharAt(int index)
@@ -72,6 +93,8 @@ namespace Calc
                 return '\0';
             return _expression[index];
         }
+
+        public static bool IsOperator(char op) => Operators.IndexOf(op) != -1;
     }
 
     public class Token
@@ -84,18 +107,15 @@ namespace Calc
         public TokenType Type { get; set; }
         public string Value { get; set; }
         public override string ToString() => Value.ToString();
-    }
+    }  
 
-    internal static class Syntax
-    {
-        private static readonly List<char> Operators = new List<char> { '*', '/', '+', '-' }; 
-        public static bool IsOperator(char op) => Operators.IndexOf(op) != -1;
-    }
     public enum TokenType
     {
         Number,
         Operator,
-        Empty
+        Brace,
+        Empty,
+        Error
     }
 
 }
