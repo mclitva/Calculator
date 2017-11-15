@@ -7,7 +7,6 @@ namespace Calc
         public InvalidSyntaxException()
         {
         }
-
         public InvalidSyntaxException(string message) : base(message)
         {
         }
