@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Calc
 {
@@ -7,17 +7,11 @@ namespace Calc
     {
         private List<Token> _tokens;
         private int _currentIndex;
-        private Token CurrentToken { get
-            {
-                if (_currentIndex < _tokens.Count)
-                    return _tokens[_currentIndex];
-                else
-                    return new Token(TokenType.Empty, "");
-            }}
+        private Token CurrentToken => _tokens.ElementAtOrDefault(_currentIndex) ?? new Token(TokenType.Empty, string.Empty);
 
-        public Calculator(string expr)
+        public Calculator(string input)
         {
-            _tokens = new Tokenizer(expr).Parse();
+            _tokens = new Tokenizer(input).Tokenize();
             _currentIndex = 0;
         }
 
@@ -28,7 +22,7 @@ namespace Calc
             {
                 throw new InvalidSyntaxException("Empty expression");
             }
-            result = GetAddition(result);
+            result = CalcAddition(result);
             if (CurrentToken.Value != "")
             {
                 throw new InvalidSyntaxException("Syntax error");
@@ -36,15 +30,15 @@ namespace Calc
             return result;
         }
 
-        private int GetAddition( int result)
+        private int CalcAddition( int result)
         {
             int rightArg = 0;
-            result = GetMultiplication(result);
+            result = CalcMultiplication(result);
             var op = CurrentToken.Value;
             while (op == "+" || op == "-")
             {
                 _currentIndex++;
-                rightArg = GetMultiplication(rightArg);
+                rightArg = CalcMultiplication(rightArg);
                 switch (op)
                 {
                     case "-":
@@ -59,7 +53,7 @@ namespace Calc
             return result;
         }
 
-        private int GetMultiplication(int result)
+        private int CalcMultiplication(int result)
         {
             int rightArg = 0;
             result = GetPower(result);
@@ -106,7 +100,7 @@ namespace Calc
             if (CurrentToken.Value == "(")
             {
                 _currentIndex++;
-                result = GetAddition(result);
+                result = CalcAddition(result);
                 if (CurrentToken.Value != ")")
                     throw new InvalidSyntaxException("Invalid count of braces");
                 _currentIndex++;

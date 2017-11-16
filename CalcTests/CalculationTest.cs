@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Calc;
 using NUnit.Framework;
 
@@ -37,26 +36,38 @@ namespace CalcTests
         public void DivideByZeroException()
         {
             Calculator calculator = new Calculator("2/0");
+            Assert.Throws<DivideByZeroException>(() =>
+                calculator.Calculate());
         }
 
         [Test]
         public void EmptyExpressionException()
         {            
             Calculator calculator = new Calculator("");
-            Assert.Throws<InvalidSyntaxException>(delegate { calculator.Calculate(); });
+            Assert.Throws<InvalidSyntaxException>(() =>
+                calculator.Calculate());
         }
 
         [Test]
         public void MissingArgumentException()
         {
             Calculator calculator = new Calculator("1+");
-            Assert.Throws<InvalidSyntaxException>(delegate { calculator.Calculate(); });
+            Assert.Throws<InvalidSyntaxException>(() =>
+                calculator.Calculate());
         }
 
         [Test]
         public void UnexceptedPointException()
         {
-            Assert.Throws<InvalidSyntaxException>(delegate { new Calculator("1.5").Calculate(); });
+            Assert.Throws<InvalidSyntaxException>(() =>
+                new Calculator("1.5").Calculate());
+        }
+
+        [Test]
+        public void EmptyBracesException()
+        {
+            Assert.Throws<FormatException>(() =>
+                new Calculator("1+()+5").Calculate());
         }
     }    
 }

@@ -1,100 +1,87 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Calc
 {
     public class Tokenizer
     {
-        private string _expression;
+        private string _input;
         private int _position;
-        private char CurChar => _position >= _expression.Length ? '\0' : _expression[_position];
-        private static readonly List<char> Operators = new List<char> { '*', '/', '+', '-', '^' };
+        private char CurrentChar => _input.ElementAtOrDefault(_position);
+        private static readonly List<char> OperatorChars = new List<char> { '*', '/', '+', '-', '^' };
 
-        public Tokenizer(string expression)
+        public Tokenizer(string input)
         {
-            _expression = expression;
+            _input = input;
             _position = 0;
         }
 
-        public List<Token> Parse()
+        public List<Token> Tokenize()
         {
             List<Token> tokens = new List<Token>();
-            Token token = new Token(TokenType.Number, "");
-            while(_position < _expression.Length)
+            Token token;
+            while(_position < _input.Length)
             {
                 token = NextToken();
-                if (token.Type == TokenType.Error)
-                    continue;
-                tokens.Add(token);
+                if (token.Type != TokenType.Error)
+                    tokens.Add(token);
             }
             return tokens;
         }
 
         public Token NextToken()
         {
-            string tokenValue = string.Empty;
-            if (_position == _expression.Length)
-                return new Token(TokenType.Empty, tokenValue);
-            while (char.IsWhiteSpace(CurChar) && _position < _expression.Length)
+            if (_position == _input.Length)
+                return new Token(TokenType.Empty, CurrentChar.ToString());
+            while (char.IsWhiteSpace(CurrentChar) && _position < _input.Length)
                 _position++;
-            if (_position == _expression.Length)
-                return new Token(TokenType.Empty, tokenValue);
-            if (CurChar == '(' || CurChar == ')')
+            if (_position == _input.Length)
+                return new Token(TokenType.Empty, CurrentChar.ToString());
+            if (CurrentChar == '(' || CurrentChar == ')')
             {
-                tokenValue += CurChar;
+                char brace = CurrentChar;
                 _position++;
-                return new Token(TokenType.Brace, tokenValue);
+                return new Token(TokenType.Brace, brace.ToString());
             }
-            else if (IsOperator(CurChar))
+            else if (IsOperator(CurrentChar))
             {
-                Token op = ParseOperator();
-                return op;
+                return TokenizeOperator();
             }
-            else if (char.IsDigit(CurChar))
+            else if (char.IsDigit(CurrentChar))
             {
-                Token number = ParseNumber();
-                return number;
+                return TokenizeNumber();
             }
             else
             {
                 _position++;
-                return new Token(TokenType.Error, tokenValue);
+                return new Token(TokenType.Error, string.Empty);
             }
         }
         
-        public Token ParseNumber()
+        public Token TokenizeNumber()
         {
             StringBuilder builder = new StringBuilder();
-            while (char.IsDigit(CurChar))
+            while (char.IsDigit(CurrentChar))
             {
-                if (_position >= _expression.Length)
-                    break;
-                builder.Append(CurChar);
+                builder.Append(CurrentChar);
                 _position++;
             }
             return new Token(TokenType.Number, builder.ToString());
         }
 
-        public Token ParseOperator()
+        public Token TokenizeOperator()
         {
-            string operatorValue = string.Empty;
-            while (IsOperator(CurChar))
+            StringBuilder builder = new StringBuilder();
+            while (IsOperator(CurrentChar))
             {
-                operatorValue += CurChar;
+                builder.Append(CurrentChar);
                 _position++;
             }
-            return new Token(TokenType.Operator, operatorValue);
+            return new Token(TokenType.Operator, builder.ToString());
         }
 
-        private char GetCharAt(int index)
-        {
-            if (index >= _expression.Length)
-                return '\0';
-            return _expression[index];
-        }
-
-        public static bool IsOperator(char op) => Operators.IndexOf(op) != -1;
+        public static bool IsOperator(char op) => OperatorChars.IndexOf(op) != -1;
     }
 
     public class Token
@@ -117,5 +104,4 @@ namespace Calc
         Empty,
         Error
     }
-
 }
