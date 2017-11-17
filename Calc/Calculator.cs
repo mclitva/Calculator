@@ -7,7 +7,7 @@ namespace Calc
     {
         private List<Token> _tokens;
         private int _currentIndex;
-        private Token CurrentToken => _tokens.ElementAtOrDefault(_currentIndex) ?? new Token(TokenType.Empty, string.Empty);
+        private Token currentToken => _tokens.ElementAtOrDefault(_currentIndex) ?? new Token(TokenType.EOF, string.Empty);
 
         public Calculator(string input)
         {
@@ -18,27 +18,27 @@ namespace Calc
         public int Calculate()
         {
             int result = 0;
-            if (CurrentToken.Value == "")
+            if (currentToken.Value == "")
             {
                 throw new InvalidSyntaxException("Empty expression");
             }
-            result = CalcAddition(result);
-            if (CurrentToken.Value != "")
+            result = CalculateAddition(result);
+            if (currentToken.Value != "")
             {
                 throw new InvalidSyntaxException("Syntax error");
             }
             return result;
         }
 
-        private int CalcAddition( int result)
+        private int CalculateAddition( int result)
         {
             int rightArg = 0;
-            result = CalcMultiplication(result);
-            var op = CurrentToken.Value;
+            result = CalculateMultiplication(result);
+            var op = currentToken.Value;
             while (op == "+" || op == "-")
             {
                 _currentIndex++;
-                rightArg = CalcMultiplication(rightArg);
+                rightArg = CalculateMultiplication(rightArg);
                 switch (op)
                 {
                     case "-":
@@ -48,16 +48,16 @@ namespace Calc
                         result += rightArg;
                         break;
                 }
-                op = CurrentToken.Value;
+                op = currentToken.Value;
             }
             return result;
         }
 
-        private int CalcMultiplication(int result)
+        private int CalculateMultiplication(int result)
         {
             int rightArg = 0;
             result = GetPower(result);
-            string op = CurrentToken.Value;
+            string op = currentToken.Value;
             while (op == "*" || op == "/")
             {
                 _currentIndex++;
@@ -71,7 +71,7 @@ namespace Calc
                         result /= rightArg;
                         break;
                 }
-                op = CurrentToken.Value;
+                op = currentToken.Value;
             }
             return result;
         }
@@ -80,16 +80,11 @@ namespace Calc
         {
             int rightArg = 0;
             result = GetInBraces(result);
-            if (CurrentToken.Value == "^^")
+            if (currentToken.Value == "^^")
             {
                 _currentIndex++;
                 rightArg = GetPower(rightArg);
-                var power = rightArg;
-                if (rightArg == 0)
-                {
-                    result = 1;
-                    return result;
-                }
+                var power = rightArg;                
                 result = CalculatePower(result, power);
             }
             return result;
@@ -97,11 +92,11 @@ namespace Calc
 
         private int GetInBraces(int result)
         {
-            if (CurrentToken.Value == "(")
+            if (currentToken.Value == "(")
             {
                 _currentIndex++;
-                result = CalcAddition(result);
-                if (CurrentToken.Value != ")")
+                result = CalculateAddition(result);
+                if (currentToken.Value != ")")
                     throw new InvalidSyntaxException("Invalid count of braces");
                 _currentIndex++;
             }
@@ -112,16 +107,20 @@ namespace Calc
 
         private int GetNumber(int result)
         {
-            if(string.IsNullOrEmpty(CurrentToken.Value))
+            if(string.IsNullOrEmpty(currentToken.Value))
                 throw new InvalidSyntaxException("There is no argument");
-            result = int.Parse(CurrentToken.Value);            
+            result = int.Parse(currentToken.Value);            
             _currentIndex++;
             return result;
         }
 
         private int CalculatePower(int value, int power)
-        {
+        {            
             int res = 1;
+            if (power == 0)
+                {
+                    return res;
+                }
             while (power != 0)
             {
                 if (power % 2 == 0)

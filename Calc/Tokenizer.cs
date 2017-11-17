@@ -8,7 +8,7 @@ namespace Calc
     {
         private string _input;
         private int _position;
-        private char CurrentChar => _input.ElementAtOrDefault(_position);
+        private char currentChar => _input.ElementAtOrDefault(_position);
         private static readonly List<char> OperatorChars = new List<char> { '*', '/', '+', '-', '^' };
 
         public Tokenizer(string input)
@@ -32,23 +32,21 @@ namespace Calc
 
         public Token NextToken()
         {
-            if (_position == _input.Length)
-                return new Token(TokenType.Empty, CurrentChar.ToString());
-            while (char.IsWhiteSpace(CurrentChar) && _position < _input.Length)
+            while (char.IsWhiteSpace(currentChar) && _position < _input.Length)
                 _position++;
             if (_position == _input.Length)
-                return new Token(TokenType.Empty, CurrentChar.ToString());
-            if (CurrentChar == '(' || CurrentChar == ')')
+                return new Token(TokenType.EOF, currentChar.ToString());
+            if (currentChar == '(' || currentChar == ')')
             {
-                char brace = CurrentChar;
+                char brace = currentChar;
                 _position++;
                 return new Token(TokenType.Brace, brace.ToString());
             }
-            else if (IsOperator(CurrentChar))
+            else if (IsOperator(currentChar))
             {
                 return TokenizeOperator();
             }
-            else if (char.IsDigit(CurrentChar))
+            else if (char.IsDigit(currentChar))
             {
                 return TokenizeNumber();
             }
@@ -62,9 +60,9 @@ namespace Calc
         public Token TokenizeNumber()
         {
             StringBuilder builder = new StringBuilder();
-            while (char.IsDigit(CurrentChar))
+            while (char.IsDigit(currentChar))
             {
-                builder.Append(CurrentChar);
+                builder.Append(currentChar);
                 _position++;
             }
             return new Token(TokenType.Number, builder.ToString());
@@ -73,9 +71,9 @@ namespace Calc
         public Token TokenizeOperator()
         {
             StringBuilder builder = new StringBuilder();
-            while (IsOperator(CurrentChar))
+            while (IsOperator(currentChar))
             {
-                builder.Append(CurrentChar);
+                builder.Append(currentChar);
                 _position++;
             }
             return new Token(TokenType.Operator, builder.ToString());
@@ -101,7 +99,7 @@ namespace Calc
         Number,
         Operator,
         Brace,
-        Empty,
+        EOF,
         Error
     }
 }
